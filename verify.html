@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>旋转验证</title>
+  <title>安全验证</title>
   <style>
     * {
       margin: 0;
@@ -17,6 +17,8 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      margin: 0;
+      padding: 20px;
     }
 
     .verify-card {
@@ -26,6 +28,7 @@
       padding: 24px;
       text-align: center;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      margin: 0 auto;
     }
 
     .verify-title {
@@ -40,33 +43,60 @@
       margin-bottom: 24px;
     }
 
-    .verify-circle {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
+    .verify-container {
+      width: 312px;
+      height: 156px;
       margin: 0 auto 24px;
-      overflow: hidden;
       position: relative;
       border: 1px solid #eee;
-      /* 图片加载失败时显示背景 */
       background: #f5f5f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    .verify-img {
+    .verify-bg {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.1s linear;
+      display: none;
     }
 
-    /* 图片加载提示 */
+    .verify-gap {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border: 1px solid #ddd;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      display: none;
+    }
+
+    .verify-slider {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border: 1px solid #ddd;
+      background: #fff;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 18px;
+      cursor: grab;
+      z-index: 10;
+      display: none;
+    }
+
+    .verify-slider:active {
+      cursor: grabbing;
+    }
+
     .img-loading {
       font-size: 12px;
       color: #999;
       position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .slider-container {
@@ -106,6 +136,7 @@
       color: #999;
       font-size: 18px;
       transition: left 0.1s linear;
+      z-index: 10;
     }
 
     .slider-btn:active {
@@ -150,6 +181,7 @@
       border-radius: 8px;
       font-size: 14px;
       display: none;
+      z-index: 999;
     }
   </style>
 </head>
@@ -158,16 +190,11 @@
     <div class="verify-title">百度安全验证</div>
     <div class="verify-subtitle">请完成下方验证后继续操作</div>
 
-    <div class="verify-circle">
-      <!-- 加载提示 -->
+    <div class="verify-container">
       <div class="img-loading" id="imgLoading">图片加载中...</div>
-      <!-- 随机加载图片 -->
-      <img 
-        src=""  <!-- JS填充路径 -->
-        alt="验证图片" 
-        class="verify-img" 
-        id="verifyImg"
-      >
+      <img src="" alt="验证图片" class="verify-bg" id="verifyBg">
+      <div class="verify-gap" id="verifyGap"></div>
+      <div class="verify-slider" id="verifySlider">|||</div>
     </div>
 
     <div class="slider-container">
@@ -175,7 +202,7 @@
       <div class="slider-btn" id="sliderBtn">
         <span>|||</span>
       </div>
-      <div class="slider-text">拖动左侧滑块使图片为正</div>
+      <div class="slider-text">拖动滑块完成拼图</div>
     </div>
 
     <div class="verify-footer">
@@ -187,23 +214,24 @@
   <div class="success-tip" id="successTip">验证成功！</div>
 
   <script>
-    // ========== 核心配置 ==========
-    // 1. 10张图片路径（确保和你的本地文件一致！）
+    // 核心配置：10张在线图片（随机加载，永不掉链）
     const imgList = [
-      'images/verify1.jpg',
-      'images/verify2.jpg',
-      'images/verify3.jpg',
-      'images/verify4.jpg',
-      'images/verify5.jpg',
-      'images/verify6.jpg',
-      'images/verify7.jpg',
-      'images/verify8.jpg',
-      'images/verify9.jpg',
-      'images/verify10.jpg'
+      'https://picsum.photos/seed/verify1/312/156',
+      'https://picsum.photos/seed/verify2/312/156',
+      'https://picsum.photos/seed/verify3/312/156',
+      'https://picsum.photos/seed/verify4/312/156',
+      'https://picsum.photos/seed/verify5/312/156',
+      'https://picsum.photos/seed/verify6/312/156',
+      'https://picsum.photos/seed/verify7/312/156',
+      'https://picsum.photos/seed/verify8/312/156',
+      'https://picsum.photos/seed/verify9/312/156',
+      'https://picsum.photos/seed/verify10/312/156'
     ];
 
-    // 2. 全局变量
-    const verifyImg = document.getElementById('verifyImg');
+    // 全局变量
+    const verifyBg = document.getElementById('verifyBg');
+    const verifyGap = document.getElementById('verifyGap');
+    const verifySlider = document.getElementById('verifySlider');
     const sliderBtn = document.getElementById('sliderBtn');
     const sliderProgress = document.getElementById('sliderProgress');
     const sliderContainer = document.querySelector('.slider-container');
@@ -212,56 +240,75 @@
     let isDragging = false;
     let startX = 0;
     let startLeft = 0;
-    const maxRotation = 360;
+    let targetX = 0;
     const containerWidth = sliderContainer.offsetWidth;
     const btnWidth = sliderBtn.offsetWidth;
-    // 调整旋转灵敏度（更稳）
-    const sensitivity = 5;
+    const verifyWidth = 312;
+    const gapWidth = 40;
 
-    // ========== 修复：随机加载图片（带容错+提示） ==========
+    // 随机加载在线图片（带加载提示+容错，确保必显示）
     function getRandomImg() {
-      // 1. 显示加载提示
       imgLoading.style.display = 'block';
-      verifyImg.style.display = 'none';
+      verifyBg.style.display = 'none';
+      verifyGap.style.display = 'none';
+      verifySlider.style.display = 'none';
 
-      // 2. 随机选一张图片（0-9下标）
+      // 随机选择一张在线图片
       const randomIndex = Math.floor(Math.random() * imgList.length);
       const randomImgPath = imgList[randomIndex];
 
-      // 3. 预加载图片，确保加载成功再显示
+      // 预加载图片，确保加载成功再显示
       const tempImg = new Image();
       tempImg.src = randomImgPath;
 
       // 图片加载成功
       tempImg.onload = function() {
-        verifyImg.src = randomImgPath;
-        verifyImg.style.display = 'block';
+        verifyBg.src = randomImgPath;
+        verifyBg.style.display = 'block';
         imgLoading.style.display = 'none';
-        // 加载成功后随机旋转
-        const initialRotation = Math.floor(Math.random() * 360);
-        verifyImg.style.transform = `rotate(${initialRotation}deg)`;
+        
+        // 随机生成缺口位置
+        targetX = Math.floor(Math.random() * (verifyWidth - gapWidth * 2)) + gapWidth;
+        
+        // 设置缺口位置
+        verifyGap.style.left = `${targetX}px`;
+        verifyGap.style.top = `${(156 - gapWidth) / 2}px`;
+        verifyGap.style.display = 'block';
+        
+        // 设置滑块初始位置
+        verifySlider.style.left = `${gapWidth}px`;
+        verifySlider.style.top = `${(156 - gapWidth) / 2}px`;
+        verifySlider.style.display = 'block';
       };
 
-      // 图片加载失败（提示+用在线图片兜底）
+      // 图片加载失败（兜底，确保必显示图片）
       tempImg.onerror = function() {
-        imgLoading.textContent = '图片加载失败，使用备用图';
-        // 兜底：用在线图片，确保页面能正常使用
-        verifyImg.src = 'https://picsum.photos/200/200';
-        verifyImg.style.display = 'block';
-        const initialRotation = Math.floor(Math.random() * 360);
-        verifyImg.style.transform = `rotate(${initialRotation}deg)`;
-        // 控制台提示错误路径
-        console.error('图片加载失败，路径：', randomImgPath);
+        imgLoading.textContent = '图片加载中...';
+        // 兜底在线图片，永不失效
+        verifyBg.src = 'https://picsum.photos/312/156';
+        verifyBg.style.display = 'block';
+        
+        // 随机生成缺口位置
+        targetX = Math.floor(Math.random() * (verifyWidth - gapWidth * 2)) + gapWidth;
+        
+        // 设置缺口位置
+        verifyGap.style.left = `${targetX}px`;
+        verifyGap.style.top = `${(156 - gapWidth) / 2}px`;
+        verifyGap.style.display = 'block';
+        
+        // 设置滑块初始位置
+        verifySlider.style.left = `${gapWidth}px`;
+        verifySlider.style.top = `${(156 - gapWidth) / 2}px`;
+        verifySlider.style.display = 'block';
       };
     }
 
-    // ========== 页面加载完成后执行（关键！） ==========
+    // 页面加载完成后，立即加载随机图片（确保图片显示）
     window.onload = function() {
-      // 优先加载随机图片
       getRandomImg();
     };
 
-    // ========== 滑块拖拽旋转逻辑 ==========
+    // 滑块拖拽逻辑
     sliderBtn.addEventListener('mousedown', (e) => {
       isDragging = true;
       startX = e.clientX;
@@ -273,68 +320,59 @@
       if (!isDragging) return;
 
       const deltaX = e.clientX - startX;
-      if (Math.abs(deltaX) < sensitivity) return; // 过滤微小移动
-
       let newLeft = startLeft + deltaX;
-      // 限制滑块范围（0 - 容器宽度-按钮宽度）
+      // 限制滑块范围，不超出容器
       newLeft = Math.max(0, Math.min(newLeft, containerWidth - btnWidth));
 
-      // 计算旋转角度
-      const rotationRatio = newLeft / (containerWidth - btnWidth);
-      const currentRotation = (rotationRatio * maxRotation) % 360;
-
-      // 更新滑块和图片
+      // 更新滑块和进度条
       sliderBtn.style.left = `${newLeft}px`;
       sliderProgress.style.width = `${newLeft + btnWidth / 2}px`;
-      verifyImg.style.transform = `rotate(${currentRotation}deg)`;
 
-      // 更新起始位置
+      // 计算滑块在验证区域的位置
+      const verifyRatio = newLeft / (containerWidth - btnWidth);
+      const sliderX = gapWidth + (verifyWidth - gapWidth * 2) * verifyRatio;
+      verifySlider.style.left = `${sliderX}px`;
+
+      // 更新起始位置，确保拖拽流畅
       startX = e.clientX;
       startLeft = newLeft;
     });
 
-    // ========== 验证逻辑（放宽条件+确保跳转） ==========
+    // 验证逻辑
     document.addEventListener('mouseup', () => {
       if (!isDragging) return;
       isDragging = false;
 
-      // 获取当前旋转角度
-      let currentRotation = 0;
-      try {
-        const transform = verifyImg.style.transform;
-        const match = transform.match(/rotate\((\d+)deg\)/);
-        if (match) {
-          currentRotation = parseInt(match[1]);
-        }
-      } catch (err) {
-        currentRotation = 0;
-      }
+      // 计算当前滑块位置
+      const currentLeft = sliderBtn.offsetLeft;
+      const verifyRatio = currentLeft / (containerWidth - btnWidth);
+      const currentX = gapWidth + (verifyWidth - gapWidth * 2) * verifyRatio;
 
-      // 放宽验证条件（±10°都算通过）
-      const isVerified = currentRotation <= 10 || currentRotation >= 350;
+      // 验证是否成功（允许±5px的误差）
+      const isVerified = Math.abs(currentX - targetX) <= 5;
       if (isVerified) {
         successTip.style.display = 'block';
         setTimeout(() => {
           successTip.style.display = 'none';
-          // 确保跳转（page2.html和verify.html同级）
+          // 跳转页面
           window.location.href = 'page2.html';
         }, 500);
       } else {
-        // 验证失败：重置滑块+重新加载随机图片
+        // 验证失败：重置滑块
         sliderBtn.style.left = '0px';
         sliderProgress.style.width = '0px';
-        getRandomImg(); // 重新随机换一张图
-        alert('验证失败，请拖动滑块使图片为正（角度接近0°即可）！');
+        verifySlider.style.left = `${gapWidth}px`;
+        alert('验证失败，请重试！');
       }
     });
 
-    // 鼠标离开窗口：重置
+    // 鼠标离开窗口，重置滑块
     document.addEventListener('mouseleave', () => {
       if (isDragging) {
         isDragging = false;
         sliderBtn.style.left = '0px';
         sliderProgress.style.width = '0px';
-        getRandomImg();
+        verifySlider.style.left = `${gapWidth}px`;
       }
     });
   </script>
