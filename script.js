@@ -1,5 +1,10 @@
 // 模拟后台白名单手机号
-const allowedPhones = ['133****0715', '13800138000'];
+const allowedPhones = ['133****0715', 
+                       '13816812419'
+                       '18621845725'
+                       
+                       
+                       '13800138000'];
 
 // 图形验证码
 document.getElementById('getCaptcha').addEventListener('click', () => {
