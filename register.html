@@ -479,42 +479,58 @@
       }
 
       // 发送验证码
-      getCaptchaBtn.addEventListener('click', function() {
-        const phone = phoneInput.value.trim();
-        if (!/^1[3-9]\d{9}$/.test(phone)) {
-          alert('请输入正确的手机号');
-          return;
-        }
-        if (!ALLOWED_PHONES.includes(phone)) {
-          illegalModal.style.display = 'flex'; // 显示非法操作弹窗
-          return;
-        }
-        
-        // 生成验证码
-        const captcha = generateCaptcha();
-        // 保存验证码到会话存储，设置5分钟有效期
-        const expiresAt = Date.now() + 5 * 60 * 1000;
-        sessionStorage.setItem('smsCaptcha', captcha);
-        sessionStorage.setItem('captchaExpires', expiresAt);
-        
-        // 模拟发送验证码（实际项目中需要调用短信API）
-        alert(`验证码已发送到 ${phone}：${captcha}`);
-        
-        // 按钮倒计时
-        let countdown = 60;
-        getCaptchaBtn.disabled = true;
-        getCaptchaBtn.textContent = `${countdown}秒后重新获取`;
-        
-        const timer = setInterval(() => {
-          countdown--;
-          getCaptchaBtn.textContent = `${countdown}秒后重新获取`;
-          if (countdown <= 0) {
-            clearInterval(timer);
-            getCaptchaBtn.disabled = false;
-            getCaptchaBtn.textContent = '获取验证码';
+        getCaptchaBtn.addEventListener('click', function() {
+          const phone = phoneInput.value.trim();
+          if (!/^1[3-9]\d{9}$/.test(phone)) {
+            alert('请输入正确的手机号');
+            return;
           }
-        }, 1000);
-      });
+          if (!ALLOWED_PHONES.includes(phone)) {
+            illegalModal.style.display = 'flex'; // 显示非法操作弹窗
+            return;
+          }
+          
+          // 生成验证码
+          const captcha = generateCaptcha();
+          // 保存验证码到会话存储，设置5分钟有效期
+          const expiresAt = Date.now() + 5 * 60 * 1000;
+          sessionStorage.setItem('smsCaptcha', captcha);
+          sessionStorage.setItem('captchaExpires', expiresAt);
+          
+          // 调用 Spug API 发送短信
+          const spugApiUrl = `https://push.spug.cc/send/gL1QGmW01WjlRD65?code=${captcha}&targets=${phone}`; // 正确的API URL
+          
+          // 发送请求
+          console.log('发送短信 API URL:', spugApiUrl);
+          fetch(spugApiUrl, {
+            method: 'GET',
+            mode: 'no-cors'
+          })
+            .then(response => {
+              console.log('HTTP 状态码:', response.status);
+              // 由于使用 no-cors 模式，无法读取响应内容
+              // 移除弹窗提示，直接通过手机接收短信
+            })
+            .catch(error => {
+              console.error('API 请求失败:', error);
+              alert(`短信发送失败: ${error.message || '网络错误'}`);
+            });
+          
+          // 按钮倒计时
+          let countdown = 60;
+          getCaptchaBtn.disabled = true;
+          getCaptchaBtn.textContent = `${countdown}秒后重新获取`;
+          
+          const timer = setInterval(() => {
+            countdown--;
+            getCaptchaBtn.textContent = `${countdown}秒后重新获取`;
+            if (countdown <= 0) {
+              clearInterval(timer);
+              getCaptchaBtn.disabled = false;
+              getCaptchaBtn.textContent = '获取验证码';
+            }
+          }, 1000);
+        });
 
       // 弹窗按钮事件
       exitBtn.addEventListener('click', function() {
