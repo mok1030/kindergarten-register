@@ -187,7 +187,7 @@
 </head>
 <body>
   <div class="verify-card">
-    <div class="verify-title">百度安全验证</div>
+    <div class="verify-title">小鸽子安全验证</div>
     <div class="verify-subtitle">请完成下方验证后继续操作</div>
 
     <div class="verify-container">
@@ -214,18 +214,13 @@
   <div class="success-tip" id="successTip">验证成功！</div>
 
   <script>
-    // 核心配置：10张在线图片（随机加载，永不掉链）
+    // 核心配置：使用本地图片（加载更快）
     const imgList = [
-      'https://picsum.photos/seed/verify1/312/156',
-      'https://picsum.photos/seed/verify2/312/156',
-      'https://picsum.photos/seed/verify3/312/156',
-      'https://picsum.photos/seed/verify4/312/156',
-      'https://picsum.photos/seed/verify5/312/156',
-      'https://picsum.photos/seed/verify6/312/156',
-      'https://picsum.photos/seed/verify7/312/156',
-      'https://picsum.photos/seed/verify8/312/156',
-      'https://picsum.photos/seed/verify9/312/156',
-      'https://picsum.photos/seed/verify10/312/156'
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgZmlsbD0iI2Y1ZjVmNSIvPjxyZWN0IHg9IjIwIiB5PSIyMCIgd2lkdGg9IjI3MiIgaGVpZ2h0PSIxMTYiIGZpbGw9IiNmNWU1ZTUiLz48L3N2Zz4=',
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgZmlsbD0iI2Y1ZjVmNSIvPjxyZWN0IHg9IjMwIiB5PSIzMCIgd2lkdGg9IjI1MiIgaGVpZ2h0PSI5NiIgZmlsbD0iI2Y1ZTUiLz48L3N2Zz4=',
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgZmlsbD0iI2Y1ZjVmNSIvPjxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjIzMiIgaGVpZ2h0PSI3NiIgZmlsbD0iI2Y1ZTUiLz48L3N2Zz4=',
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgZmlsbD0iI2Y1ZjVmNSIvPjxyZWN0IHg9IjUwIiB5PSI1MCIgd2lkdGg9IjIxMiIgaGVpZ2h0PSI1NiIgZmlsbD0iI2Y1ZTUiLz48L3N2Zz4=',
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzEyIiBoZWlnaHQ9IjE1NiIgZmlsbD0iI2Y1ZjVmNSIvPjxyZWN0IHg9IjYwIiB5PSI2MCIgd2lkdGg9IjE5MiIgaGVpZ2h0PSIzNiIgZmlsbD0iI2Y1ZTUiLz48L3N2Zz4='
     ];
 
     // 全局变量
@@ -246,61 +241,29 @@
     const verifyWidth = 312;
     const gapWidth = 40;
 
-    // 随机加载在线图片（带加载提示+容错，确保必显示）
+    // 随机加载本地图片（加载更快）
     function getRandomImg() {
-      imgLoading.style.display = 'block';
-      verifyBg.style.display = 'none';
-      verifyGap.style.display = 'none';
-      verifySlider.style.display = 'none';
-
-      // 随机选择一张在线图片
+      // 随机选择一张本地图片
       const randomIndex = Math.floor(Math.random() * imgList.length);
       const randomImgPath = imgList[randomIndex];
 
-      // 预加载图片，确保加载成功再显示
-      const tempImg = new Image();
-      tempImg.src = randomImgPath;
-
-      // 图片加载成功
-      tempImg.onload = function() {
-        verifyBg.src = randomImgPath;
-        verifyBg.style.display = 'block';
-        imgLoading.style.display = 'none';
-        
-        // 随机生成缺口位置
-        targetX = Math.floor(Math.random() * (verifyWidth - gapWidth * 2)) + gapWidth;
-        
-        // 设置缺口位置
-        verifyGap.style.left = `${targetX}px`;
-        verifyGap.style.top = `${(156 - gapWidth) / 2}px`;
-        verifyGap.style.display = 'block';
-        
-        // 设置滑块初始位置
-        verifySlider.style.left = `${gapWidth}px`;
-        verifySlider.style.top = `${(156 - gapWidth) / 2}px`;
-        verifySlider.style.display = 'block';
-      };
-
-      // 图片加载失败（兜底，确保必显示图片）
-      tempImg.onerror = function() {
-        imgLoading.textContent = '图片加载中...';
-        // 兜底在线图片，永不失效
-        verifyBg.src = 'https://picsum.photos/312/156';
-        verifyBg.style.display = 'block';
-        
-        // 随机生成缺口位置
-        targetX = Math.floor(Math.random() * (verifyWidth - gapWidth * 2)) + gapWidth;
-        
-        // 设置缺口位置
-        verifyGap.style.left = `${targetX}px`;
-        verifyGap.style.top = `${(156 - gapWidth) / 2}px`;
-        verifyGap.style.display = 'block';
-        
-        // 设置滑块初始位置
-        verifySlider.style.left = `${gapWidth}px`;
-        verifySlider.style.top = `${(156 - gapWidth) / 2}px`;
-        verifySlider.style.display = 'block';
-      };
+      // 直接设置图片，不需要加载时间
+      verifyBg.src = randomImgPath;
+      verifyBg.style.display = 'block';
+      imgLoading.style.display = 'none';
+      
+      // 随机生成缺口位置
+      targetX = Math.floor(Math.random() * (verifyWidth - gapWidth * 2)) + gapWidth;
+      
+      // 设置缺口位置
+      verifyGap.style.left = `${targetX}px`;
+      verifyGap.style.top = `${(156 - gapWidth) / 2}px`;
+      verifyGap.style.display = 'block';
+      
+      // 设置滑块初始位置
+      verifySlider.style.left = `${gapWidth}px`;
+      verifySlider.style.top = `${(156 - gapWidth) / 2}px`;
+      verifySlider.style.display = 'block';
     }
 
     // 页面加载完成后，立即加载随机图片（确保图片显示）
