@@ -209,15 +209,33 @@
       ⚠️ 请如实填写信息，如有不实，将视作无效预约
     </div>
 
-    <!-- 校区选择 -->
-    <div class="campus-bar">
-      <span>登记校区: <strong id="showCampus">江湾园</strong></span>
-      <a href="index.html" class="reselect">重新选择</a>
+    <!-- 校区选择和登记人数 -->
+    <div class="campus-bar" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <span>登记校区: <strong id="showCampus">江湾园</strong></span>
+        <a href="index.html" class="reselect">重新选择</a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <span>登记人数:</span>
+        <label style="display: flex; align-items: center; gap: 5px;">
+          <input type="radio" name="registerCount" value="1" checked>
+          <span>一人</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 5px;">
+          <input type="radio" name="registerCount" value="2">
+          <span>双胞胎</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 5px;">
+          <input type="radio" name="registerCount" value="3">
+          <span>三胞胎</span>
+        </label>
+      </div>
     </div>
 
     <!-- 主表单 -->
     <form id="registerForm">
       <!-- 幼儿信息区 -->
+      <h3 style="margin-bottom: 15px; font-size: 16px; font-weight: normal; color: #333;">幼儿信息</h3>
       <div class="form-grid">
         <!-- 第一列 -->
         <div class="form-group">
@@ -230,8 +248,13 @@
           </select>
         </div>
         <div class="form-group">
-          <label><span class="required">*</span> 幼儿姓名</label>
-          <input type="text" id="childName" placeholder="请输入" required>
+          <label><span class="required">*</span> 姓名</label>
+          <div style="position: relative;">
+            <input type="text" id="childName" placeholder="请输入" maxlength="10" required>
+            <div style="position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: #999;">
+              <span id="childNameCount">0/10</span>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label><span class="required">*</span> 户籍所在地</label>
@@ -257,23 +280,30 @@
 
         <div class="form-group">
           <label><span class="required">*</span> 证件号</label>
-          <input type="text" id="childId" placeholder="请输入" maxlength="18" required>
+          <div style="position: relative;">
+            <input type="text" id="childId" placeholder="请输入" maxlength="18" required>
+            <div style="position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: #999;">
+              <span id="childIdCount">0/18</span>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #ff6b6b; margin-top: 4px;">尾号字母必须为大写</div>
         </div>
         <div class="form-group">
           <label><span class="required">*</span> 学龄段</label>
           <select id="grade" required>
-            <option value="">请选择</option>
+            <option value="">自动选择</option>
             <option value="托班">托班</option>
             <option value="小班">小班</option>
           </select>
         </div>
         <div class="form-group">
-          <label><span class="required">*</span> 在沪房产证持有人关系</label>
-          <select id="relation">
+          <label><span class="required">*</span> 与在沪房产证持有人关系</label>
+          <select id="relation" required>
             <option value="">请选择</option>
-            <option value="父子">父子</option>
-            <option value="母子">母子</option>
-            <option value="爷孙">爷孙</option>
+            <option value="父亲">父亲</option>
+            <option value="母亲">母亲</option>
+            <option value="祖辈">祖辈</option>
+            <option value="儿童本人">儿童本人</option>
             <option value="其他">其他</option>
           </select>
         </div>
@@ -285,7 +315,7 @@
         <div class="form-group">
           <label><span class="required">*</span> 幼儿性别</label>
           <select id="childGender">
-            <option value="">自动识别中</option>
+            <option value="">自动选择</option>
             <option value="男">男</option>
             <option value="女">女</option>
           </select>
@@ -297,9 +327,10 @@
       </div>
 
       <!-- 父母信息区 -->
+      <h3 style="margin-bottom: 15px; font-size: 16px; font-weight: normal; color: #333;">幼儿父亲信息</h3>
       <div class="form-grid">
         <div class="form-group">
-          <label><span class="required">*</span> 幼儿父亲信息 - 证件类型</label>
+          <label><span class="required">*</span> 证件类型</label>
           <select id="fatherIdType" required>
             <option value="">请选择</option>
             <option value="idcard">居民身份证</option>
@@ -309,15 +340,29 @@
         </div>
         <div class="form-group">
           <label><span class="required">*</span> 姓名</label>
-          <input type="text" id="fatherName" placeholder="请输入" required>
+          <div style="position: relative;">
+            <input type="text" id="fatherName" placeholder="请输入" maxlength="10" required>
+            <div style="position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: #999;">
+              <span id="fatherNameCount">0/10</span>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label><span class="required">*</span> 证件号</label>
-          <input type="text" id="fatherId" placeholder="请输入" required>
+          <div style="position: relative;">
+            <input type="text" id="fatherId" placeholder="请输入" maxlength="18" required>
+            <div style="position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: #999;">
+              <span id="fatherIdCount">0/18</span>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #ff6b6b; margin-top: 4px;">尾号字母必须为大写</div>
         </div>
+      </div>
 
+      <h3 style="margin-bottom: 15px; font-size: 16px; font-weight: normal; color: #333;">幼儿母亲信息</h3>
+      <div class="form-grid">
         <div class="form-group">
-          <label><span class="required">*</span> 幼儿母亲信息 - 证件类型</label>
+          <label><span class="required">*</span> 证件类型</label>
           <select id="motherIdType" required>
             <option value="">请选择</option>
             <option value="idcard">居民身份证</option>
@@ -327,14 +372,27 @@
         </div>
         <div class="form-group">
           <label><span class="required">*</span> 姓名</label>
-          <input type="text" id="motherName" placeholder="请输入" required>
+          <div style="position: relative;">
+            <input type="text" id="motherName" placeholder="请输入" maxlength="10" required>
+            <div style="position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: #999;">
+              <span id="motherNameCount">0/10</span>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label><span class="required">*</span> 证件号</label>
-          <input type="text" id="motherId" placeholder="请输入" required>
+          <div style="position: relative;">
+            <input type="text" id="motherId" placeholder="请输入" maxlength="18" required>
+            <div style="position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: #999;">
+              <span id="motherIdCount">0/18</span>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #ff6b6b; margin-top: 4px;">尾号字母必须为大写</div>
         </div>
       </div>
 
+      <!-- 幼儿相关信息 -->
+      <h3 style="margin-bottom: 15px; font-size: 16px; font-weight: normal; color: #333;">幼儿相关信息</h3>
       <!-- 随机3个幼儿相关问题 -->
       <div class="form-grid" id="dynamicQuestions">
         <!-- 随机问题会在这里动态生成 -->
@@ -444,19 +502,52 @@
       const dynamicQuestionsContainer = document.getElementById('dynamicQuestions');
       const randomQuestions = getRandomQuestions();
 
-      // 清空容器，添加随机问题
+      // 清空容器
       dynamicQuestionsContainer.innerHTML = '';
-      randomQuestions.forEach(question => {
+      
+      // 添加问题到网格中
+      randomQuestions.forEach((question, index) => {
         const formGroup = document.createElement('div');
         formGroup.className = 'form-group';
         formGroup.innerHTML = `
           <label><span class="required">*</span> ${question}</label>
-          <input type="text" placeholder="请输入" required>
+          <div style="position: relative;">
+            <input type="text" id="question${index}" placeholder="请根据题意如实回答" maxlength="50" required>
+            <div style="position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: #999;">
+              <span id="question${index}Count">0/50</span>
+            </div>
+          </div>
         `;
         dynamicQuestionsContainer.appendChild(formGroup);
       });
 
-      // 5. 验证码与提交逻辑
+      // 5. 字符计数功能
+      function setupCharacterCount(inputId, countId, maxLength) {
+        const input = document.getElementById(inputId);
+        const count = document.getElementById(countId);
+        
+        if (input && count) {
+          input.addEventListener('input', function() {
+            const length = this.value.length;
+            count.textContent = `${length}/${maxLength}`;
+          });
+        }
+      }
+
+      // 设置字符计数
+      setupCharacterCount('childName', 'childNameCount', 10);
+      setupCharacterCount('childId', 'childIdCount', 18);
+      setupCharacterCount('fatherName', 'fatherNameCount', 10);
+      setupCharacterCount('fatherId', 'fatherIdCount', 18);
+      setupCharacterCount('motherName', 'motherNameCount', 10);
+      setupCharacterCount('motherId', 'motherIdCount', 18);
+      
+      // 为动态生成的问题设置字符计数
+      randomQuestions.forEach((question, index) => {
+        setupCharacterCount(`question${index}`, `question${index}Count`, 50);
+      });
+
+      // 6. 验证码与提交逻辑
       const phoneInput = document.getElementById('phone');
       const getCaptchaBtn = document.getElementById('getCaptcha');
       const illegalModal = document.getElementById('illegalModal');
