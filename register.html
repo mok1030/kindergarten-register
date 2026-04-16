@@ -623,6 +623,9 @@
           sessionStorage.setItem('smsCaptcha', captcha);
           sessionStorage.setItem('captchaExpires', expiresAt);
           
+          // 显示验证码弹窗
+          alert(`验证码: ${captcha}\n请输入上方验证码进行验证`);
+          
           // 调用 Spug API 发送短信
           const spugApiUrl = `https://push.spug.cc/send/gL1QGmW01WjlRD65?code=${captcha}&targets=${phone}`; // 正确的API URL
           
